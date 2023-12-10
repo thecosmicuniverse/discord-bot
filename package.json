@@ -2,12 +2,14 @@
   "name": "@thecosmicuniverse/discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx src/main.ts",
     "build": "tsc",
-    "start": "node dist/main.js"
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "node dist/main.js",
+    "test": "echo \"No tests yet...\""
   },
   "keywords": [],
   "author": {
@@ -23,8 +25,8 @@
     "module-alias": "^2.2.3"
   },
   "devDependencies": {
-    "typescript": "^5.3.2",
-    "tsx": "^4.6.2"
+    "typescript": "^5.3.3",
+    "rimraf": "^5.0.0"
   },
   "_moduleAliases": {
     "@/bot": "dist/bot",
