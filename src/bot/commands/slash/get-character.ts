@@ -30,7 +30,6 @@ const data = new SlashCommandBuilder()
 const autocomplete = async (interaction: AutocompleteInteraction) => {
   const race = interaction.options.getString("race");
   const tokenId = interaction.options.getInteger("token-id");
-  const focusedValue = interaction.options.getFocused();
   const choices = Array.from(Array(10_000)).map((_, i) => i + 1);
   const raceFilter = choices.filter(choice => race === "elves" ? choice <= 617 : choice < 9_999);
   const filtered = raceFilter.filter(choice => choice.toString().includes(tokenId.toString() || ""))
@@ -39,7 +38,7 @@ const autocomplete = async (interaction: AutocompleteInteraction) => {
   );
 }
 
-const spacer = { name: '\u200B', value: '\u200B' };
+const spacer = (name: string = '\u200B') => ({ name, value: '\u200B' });
 const execute = async (interaction: ChatInputCommandInteraction) => {
 
   const race = interaction.options.getString("race");
@@ -48,7 +47,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
   const resp = await openSeaSDK.api.getNFT(address, tokenId.toString(), Chain.Avalanche);
   const nft = resp.nft as NFT & { traits: { trait_type: string , display_type: string, value: string | number }[]};
   const visual = nft.traits.filter(t => t.trait_type !== "property" && typeof t.value === "string");
-  const profession = nft.traits.filter(t => typeof t.value === "number");
+  const profession = nft.traits.filter(t => typeof t.value === "number" && t.value > 0);
   const staking = nft.traits.filter(t => t.trait_type === "property");
 
   const embed = new EmbedBuilder()
@@ -61,12 +60,12 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
       text: `Called by ${interaction.user.displayName}`,
       iconURL: interaction.user.displayAvatarURL()
     })
-    .addFields([
-      ...visual.map(t => ({ name: t.display_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)),
-      spacer,
-      ...profession.map(t => ({ name: t.display_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)),
-    ])
-
+    .addFields(spacer("Visual"))
+    .addFields(...visual.map(t => ({ name: t.trait_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
+    .addFields(spacer("Active Professions"))
+    .addFields( ...profession.map(t => ({ name: t.trait_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
+    .addFields(spacer("Activities"))
+    .addFields(...staking.map(t => ({ name: "\u200B", value: t.value as string, inline: true })))
   await interaction.reply({
     content: "",
     embeds: [embed],
