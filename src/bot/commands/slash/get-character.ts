@@ -20,7 +20,7 @@ const data = new SlashCommandBuilder()
       .setRequired(true)
       .addChoices(...races.map(l => ({name: l.name, value: l.value}))),
   )
-  .addIntegerOption(option =>
+  .addStringOption(option =>
     option.setName("token-id")
       .setDescription("The On-Chain Token ID")
       .setRequired(true)
@@ -29,12 +29,12 @@ const data = new SlashCommandBuilder()
 
 const autocomplete = async (interaction: AutocompleteInteraction) => {
   const race = interaction.options.getString("race");
-  const tokenId = interaction.options.getInteger("token-id");
+  const tokenId = interaction.options.getString("token-id");
   const choices = Array.from(Array(10_000)).map((_, i) => i + 1);
   const raceFilter = choices.filter(choice => race === "elf" ? choice <= 617 : choice < 9_999);
-  const filtered = raceFilter.filter(choice => choice.toString().includes(tokenId.toString() || ""))
+  const filtered = raceFilter.filter(choice => choice.toString().includes(tokenId || ""))
   await interaction.respond(
-    filtered.map(choice => ({name: choice.toString(), value: choice})).slice(0, 10),
+    filtered.map(choice => ({name: choice.toString(), value: choice.toString()})).slice(0, 10),
   );
 }
 
@@ -42,9 +42,9 @@ const spacer = (name: string = '\u200B') => ({ name, value: '\u200B' });
 const execute = async (interaction: ChatInputCommandInteraction) => {
 
   const race = interaction.options.getString("race");
-  const tokenId = interaction.options.getInteger("token-id");
+  const tokenId = interaction.options.getString("token-id");
   const address = races.find(r => r.value === race).address;
-  const resp = await openSeaSDK.api.getNFT(address, tokenId.toString(), Chain.Avalanche);
+  const resp = await openSeaSDK.api.getNFT(address, tokenId, Chain.Avalanche);
   const nft = resp.nft as NFT & { owners: { address: string, quantity: number }[], traits: { trait_type: string , display_type: string, value: string | number }[]};
   const visual = nft.traits.filter(t => t.trait_type !== "property" && typeof t.value === "string");
   const profession = nft.traits.filter(t => typeof t.value === "number" && t.value > 0);
