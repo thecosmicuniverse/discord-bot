@@ -7,7 +7,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "clean": "rimraf dist",
-    "prestart": "npm run clean && npm run build",
+    "dev": "npm run clean && npm run build && npm run start",
     "start": "node dist/main.js",
     "test": "echo \"No tests yet...\""
   },
