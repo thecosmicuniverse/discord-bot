@@ -46,6 +46,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
   const address = races.find(r => r.value === race).address;
   const resp = await openSeaSDK.api.getNFT(address, tokenId.toString(), Chain.Avalanche);
   const nft = resp.nft as NFT & { owners: { address: string, quantity: number }[], traits: { trait_type: string , display_type: string, value: string | number }[]};
+  const rarity = nft.traits.find(t => t.trait_type.toLowerCase().includes("rarity"))?.value as number || 0;
   const visual = nft.traits.filter(t => t.trait_type !== "property" && typeof t.value === "string");
   const profession = nft.traits.filter(t => typeof t.value === "number" && t.value > 0);
   const staking = nft.traits.filter(t => t.trait_type === "property");
@@ -55,7 +56,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
   const embed = new EmbedBuilder()
     .setTitle(nft.name)
     .setThumbnail(imgResponse.url)
-    .setDescription(`Owned By [${owner.slice(0, 4)}...${owner.slice(-6)}](<https://snowtrace.io/address/${owner}>)`)
+    .setDescription(`Rarity: ${rarity}%\nOwned By [${owner.slice(0, 4)}...${owner.slice(-6)}](<https://snowtrace.io/address/${owner}>)`)
     .setURL(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
     .setColor(race === "wizard" ? "#580147" : "#0d2b4c")
     .setTimestamp(new Date())
@@ -64,11 +65,11 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
       iconURL: interaction.user.displayAvatarURL()
     })
     .addFields(spacer("Visual"))
-    .addFields(...visual.map(t => ({ name: t.trait_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
+    .addFields(...visual.map(t => ({ name: t.trait_type, value: String(t.value), inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
     .addFields(spacer("Active Professions"))
-    .addFields( ...profession.map(t => ({ name: t.trait_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
+    .addFields( ...profession.map(t => ({ name: t.trait_type, value: String(t.value), inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
     .addFields(spacer("Activities"))
-    .addFields(...staking.map(t => ({ name: t.value as string, value: "\u200B", inline: true })))
+    .addFields(...staking.map(t => ({ name: String(t.value), value: "\u200B", inline: true })))
   await interaction.reply({
     content: "",
     embeds: [embed],
