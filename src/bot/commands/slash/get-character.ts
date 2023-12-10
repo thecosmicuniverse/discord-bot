@@ -31,7 +31,7 @@ const autocomplete = async (interaction: AutocompleteInteraction) => {
   const race = interaction.options.getString("race");
   const tokenId = interaction.options.getInteger("token-id");
   const choices = Array.from(Array(10_000)).map((_, i) => i + 1);
-  const raceFilter = choices.filter(choice => race === "elves" ? choice <= 617 : choice < 9_999);
+  const raceFilter = choices.filter(choice => race === "elf" ? choice <= 617 : choice < 9_999);
   const filtered = raceFilter.filter(choice => choice.toString().includes(tokenId.toString() || ""))
   await interaction.respond(
     filtered.map(choice => ({name: choice.toString(), value: choice})).slice(0, 10),
@@ -52,8 +52,8 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
 
   const embed = new EmbedBuilder()
     .setTitle(nft.name)
-    .setThumbnail(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
-    .setURL(nft.image_url)
+    .setThumbnail(nft.image_url)
+    .setURL(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
     .setColor(race === "wizard" ? "#580147" : "#0d2b4c")
     .setTimestamp(new Date())
     .setFooter({
@@ -65,7 +65,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
     .addFields(spacer("Active Professions"))
     .addFields( ...profession.map(t => ({ name: t.trait_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
     .addFields(spacer("Activities"))
-    .addFields(...staking.map(t => ({ name: "\u200B", value: t.value as string, inline: true })))
+    .addFields(...staking.map(t => ({ name: t.value as string, value: "", inline: true })))
   await interaction.reply({
     content: "",
     embeds: [embed],
