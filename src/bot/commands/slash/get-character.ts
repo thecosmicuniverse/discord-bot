@@ -66,7 +66,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
     .addFields(spacer("Active Professions"))
     .addFields( ...profession.map(t => ({ name: t.trait_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)))
     .addFields(spacer("Activities"))
-    .addFields(...staking.map(t => ({ name: t.value as string, value: "", inline: true })))
+    .addFields(...staking.map(t => ({ name: t.value as string, value: "\u200B", inline: true })))
   await interaction.reply({
     content: "",
     embeds: [embed],
