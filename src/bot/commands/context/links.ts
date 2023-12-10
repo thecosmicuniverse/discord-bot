@@ -17,28 +17,17 @@ const data = new ContextMenuCommandBuilder()
   .setDefaultMemberPermissions(PermissionsBitField.Flags.SendMessages)
   .setDMPermission(false)
 
+const selectLinkMenu = new StringSelectMenuBuilder()
+  .setCustomId('select-link-menu')
+  .setPlaceholder('Select a link type...')
+  .addOptions(...links.map(l =>
+    new StringSelectMenuOptionBuilder()
+      .setLabel(l.name)
+      .setDescription(l.description)
+      .setValue(l.value)
+  ));
+
 const execute = async (interaction: ContextMenuCommandInteraction) => {
-  const selectLinkMenu = new StringSelectMenuBuilder()
-    .setCustomId('select-link-menu')
-    .setPlaceholder('Select a link type...')
-    .addOptions(
-      new StringSelectMenuOptionBuilder()
-        .setLabel('Website')
-        .setDescription('The main Cosmic Universe Website.')
-        .setValue('website'),
-      new StringSelectMenuOptionBuilder()
-        .setLabel('Gallery')
-        .setDescription('The Cosmic Universe Gallery!')
-        .setValue('gallery'),
-      new StringSelectMenuOptionBuilder()
-        .setLabel('Whitepaper')
-        .setDescription('The nitty gritty.')
-        .setValue('whitepaper'),
-      new StringSelectMenuOptionBuilder()
-        .setLabel('DEX')
-        .setDescription('Trader Joe MAGIC/AVAX.')
-        .setValue('dex'),
-    );
 
   const selectLinkActionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectLinkMenu);
 
@@ -71,8 +60,6 @@ const execute = async (interaction: ContextMenuCommandInteraction) => {
 
   }
   await interaction.deleteReply()
-
-
 };
 
 export default {data, execute}
