@@ -52,12 +52,12 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
   const staking = nft.traits.filter(t => t.trait_type === "property");
   const owner = nft.owners[0].address;
   // resolve redirects
-  const imgResponse = await fetch(nft.image_url);
+  //const imgResponse = await fetch(nft.image_url);
   const embed = new EmbedBuilder()
     .setTitle(nft.name)
-    .setThumbnail(imgResponse.url)
+    .setImage(nft.image_url)
     .setDescription(`Rarity: ${rarity}%\nOwned By [${owner.slice(0, 4)}...${owner.slice(-6)}](<https://snowtrace.io/address/${owner}>)`)
-    .setURL(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
+    .setURL(`https://opensea.io/collection/${nft.collection}/${nft.identifier}`)
     .setColor(race === "wizard" ? "#580147" : "#0d2b4c")
     .setTimestamp(new Date())
     .setFooter({
