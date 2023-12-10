@@ -50,9 +50,11 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
   const profession = nft.traits.filter(t => typeof t.value === "number" && t.value > 0);
   const staking = nft.traits.filter(t => t.trait_type === "property");
   const owner = nft.owners[0].address;
+  // resolve redirects
+  const imgResponse = await fetch(nft.image_url);
   const embed = new EmbedBuilder()
     .setTitle(nft.name)
-    .setThumbnail(nft.image_url)
+    .setThumbnail(imgResponse.url)
     .setDescription(`Owned By [${owner.slice(0, 4)}...${owner.slice(-6)}](<https://snowtrace.io/address/${owner}>)`)
     .setURL(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
     .setColor(race === "wizard" ? "#580147" : "#0d2b4c")
