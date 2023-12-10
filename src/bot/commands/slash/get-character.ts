@@ -1,13 +1,11 @@
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
-  Embed,
   EmbedBuilder,
   SlashCommandBuilder
 } from "discord.js";
-import { links } from "@/lib/data";
 import openSeaSDK from "@/lib/opensea";
-import { Chain } from "opensea-js";
+import { Chain, NFT } from "opensea-js";
 
 const races = [
   {name: "Wizard", value: "wizard", address: "0xBF20c23D25Fca8Aa4e7946496250D67872691Af2"},
@@ -31,21 +29,29 @@ const data = new SlashCommandBuilder()
 
 const autocomplete = async (interaction: AutocompleteInteraction) => {
   const race = interaction.options.getString("race");
+  const tokenId = interaction.options.getInteger("token-id");
   const focusedValue = interaction.options.getFocused();
   const choices = Array.from(Array(10_000)).map((_, i) => i + 1);
-  const filtered = choices.filter(choice => race === "elves" ? choice <= 617 : choice < 9_999);
+  const raceFilter = choices.filter(choice => race === "elves" ? choice <= 617 : choice < 9_999);
+  const filtered = raceFilter.filter(choice => choice.toString().includes(tokenId.toString() || ""))
   await interaction.respond(
-    filtered.map(choice => ({name: choice.toString(), value: choice})),
+    filtered.map(choice => ({name: choice.toString(), value: choice})).slice(0, 10),
   );
 }
+
+const spacer = { name: '\u200B', value: '\u200B' };
 const execute = async (interaction: ChatInputCommandInteraction) => {
 
   const race = interaction.options.getString("race");
   const tokenId = interaction.options.getInteger("token-id");
   const address = races.find(r => r.value === race).address;
-  const { nft } = await openSeaSDK.api.getNFT(address, tokenId.toString(), Chain.Avalanche);
-  console.log(nft);
-  const baseEmbed = new EmbedBuilder()
+  const resp = await openSeaSDK.api.getNFT(address, tokenId.toString(), Chain.Avalanche);
+  const nft = resp.nft as NFT & { traits: { trait_type: string , display_type: string, value: string | number }[]};
+  const visual = nft.traits.filter(t => t.trait_type !== "property" && typeof t.value === "string");
+  const profession = nft.traits.filter(t => typeof t.value === "number");
+  const staking = nft.traits.filter(t => t.trait_type === "property");
+
+  const embed = new EmbedBuilder()
     .setTitle(nft.name)
     .setThumbnail(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
     .setURL(nft.image_url)
@@ -54,19 +60,12 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
     .setFooter({
       text: `Called by ${interaction.user.displayName}`,
       iconURL: interaction.user.displayAvatarURL()
-    });
-
-  let embed: EmbedBuilder;
-  switch (race) {
-    case "wizard":
-      embed = baseEmbed
-      break;
-    case "elf":
-      embed = baseEmbed
-      break;
-    default:
-      return
-  }
+    })
+    .addFields([
+      ...visual.map(t => ({ name: t.display_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)),
+      spacer,
+      ...profession.map(t => ({ name: t.display_type, value: t.value as string, inline: true})).sort((a, b) => a.name.localeCompare(b.name)),
+    ])
 
   await interaction.reply({
     content: "",
