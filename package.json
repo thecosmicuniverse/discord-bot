@@ -1,0 +1,33 @@
+{
+  "name": "@thecosmicuniverse/discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Nicholas St. Germain",
+    "email": "nick@cajun.pro",
+    "url": "https://cajun.pro/"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "viem": "^1.19.3",
+    "dotenv": "^16.3.1",
+    "module-alias": "^2.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.2",
+    "tsx": "^4.6.2"
+  },
+  "_moduleAliases": {
+    "@/bot": "dist/bot",
+    "@/lib": "dist/lib"
+  }
+}
