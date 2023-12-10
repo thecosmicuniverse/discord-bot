@@ -45,14 +45,15 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
   const tokenId = interaction.options.getInteger("token-id");
   const address = races.find(r => r.value === race).address;
   const resp = await openSeaSDK.api.getNFT(address, tokenId.toString(), Chain.Avalanche);
-  const nft = resp.nft as NFT & { traits: { trait_type: string , display_type: string, value: string | number }[]};
+  const nft = resp.nft as NFT & { owners: { address: string, quantity: number }[], traits: { trait_type: string , display_type: string, value: string | number }[]};
   const visual = nft.traits.filter(t => t.trait_type !== "property" && typeof t.value === "string");
   const profession = nft.traits.filter(t => typeof t.value === "number" && t.value > 0);
   const staking = nft.traits.filter(t => t.trait_type === "property");
-
+  const owner = nft.owners[0].address;
   const embed = new EmbedBuilder()
     .setTitle(nft.name)
     .setThumbnail(nft.image_url)
+    .setDescription(`Owned By [${owner.slice(0, 4)}...${owner.slice(-6)}](<https://snowtrace.io/address/${owner}>)`)
     .setURL(`https://opensea.io/collections/${nft.collection}/${nft.identifier}`)
     .setColor(race === "wizard" ? "#580147" : "#0d2b4c")
     .setTimestamp(new Date())
